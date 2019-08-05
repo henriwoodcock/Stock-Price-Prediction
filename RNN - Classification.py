@@ -6,8 +6,7 @@ from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers#, Activation
-KPN = pd.read_csv('/Users/henriwoodcock/Documents/University/Year_3/MATH3001'
-                  '/Code/Data/Code_Data/new_data.csv',usecols=[1,2,3,4,5
+KPN = pd.read_csv('/Data/Code_Data/new_data.csv',usecols=[1,2,3,4,5
                                                                 ,6,7,8,9,10
                                                                 ,11,12,13,14,15
                                                                 ,16,17,18,19,20,
