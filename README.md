@@ -7,18 +7,19 @@ The objective of this report is to compare the use of classification models and 
 ---
 
 ## Table of Contents:
-* [Report](addlink)
-* Classification Models:
-    - [SVM](SVM.py)
-    - [MLP](MLP%20-%20Classification.py)
-    - [RNN](RNN%20-%20Classification.py)
-    - [Auto-Encoded SVM](add soon)
-    - [Auto-Encoded MLP](add soon)
-    - [Auto-Encoded RNN](add soon)
-* Regression Models:
-    - [SVM](SVR.py)
-    - [MLP](MLP%20-%20Regression.py)
-    - [RNN](RNN%20-%20Regression.py)
-    - [Auto-Encoded SVM](add soon)
-    - [Auto-Encoded MLP](add soon)
-    - [Auto-Encoded RNN](add soon)
+* [Literature Review, Experiment and Results Report](addlink)
+* Code
+    * Classification Models:
+        - [SVM](SVM.py)
+        - [MLP](MLP%20-%20Classification.py)
+        - [RNN](RNN%20-%20Classification.py)
+        - [Auto-Encoded SVM](Auto-Encoded%20-%20SVM.py)
+        - [Auto-Encoded MLP](Auto-Encoded%20MLP%20-%20Classification.py)
+        - [Auto-Encoded RNN](Auto-Encoded%20RNN%20-%20Classification.py)
+    * Regression Models:
+        - [SVM](SVR.py)
+        - [MLP](MLP%20-%20Regression.py)
+        - [RNN](RNN%20-%20Regression.py)
+        - [Auto-Encoded SVR](Auto-Encoded%20-%20SVR.py)
+        - [Auto-Encoded MLP](Auto-Encoded%20MLP%20-%20Regression.py)
+        - [Auto-Encoded RNN](Auto-Encoded%20RNN%20-%20Regression.py)
