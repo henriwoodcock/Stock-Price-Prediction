@@ -30,7 +30,7 @@
 \pagestyle{fancy}
 \fancyhead{}                  % clear the default layout
 \fancyhead[C]{Machine and Deep Learning for Stock Price Prediction} % can be personalised
-\fancyhead[L]{Henri Woodcock}      % can be personalised
+\fancyhead[L]{}      % can be personalised
 \fancyhead[R]{}        % can be personalised
 
 % some commands for including computer code:
@@ -54,7 +54,7 @@
 \begin{center}
 {\bf \huge Machine and Deep Learning for Stock Price Prediction: Comparison of Classification and Regression Techniques}
 \vspace{4mm} \\
-\today
+{Henri Woodcock - HenriWoodcock@gmail.com}
 \end{center}
 
 \tableofcontents
@@ -68,7 +68,7 @@ This experiment compares different algorithms for predicting a stocks price and 
 This section will start with a literature review to discuss developments in financial time series prediction, then discuss the models to be compared and the tools used to create them, followed by an explanation of the conducted experiment and finally a dicussion on the results.
 %===================================================================================
 %===================================================================================
-\subsection{Literature Review}
+\section{Literature Review}
 \label{lit:rev}
 The 21st century has stimulated a huge growth in the accessibility of data and the amount of data collected. This has brought around a rise in Machine and Deep Learning; as defined in Section 2.1, Machine Learning algorithms can automatically detect patterns in data and in this era, with vast amounts of data, algorithms that can automatically analyse data are needed.
 
@@ -83,11 +83,11 @@ On the regression side, \cite{iqbal2013} found that RNNs outperform in predictio
 One final important paper is \cite{siri2018} which creates a huge deep learning model trained on a large dataset of “billions of orders and transactions” \cite{siri2018} for 1000 US stocks. This gives remarkable results in which the authors believe they have uncovered evidence “universal price formation mechanism”\cite{siri2018} by showing their model can accurately predict prices of unseen stocks after being trained on multiple stocks, outperforming models trained on the singular stock. \cite{siri2018} concludes that creating one universal model is less costly than training thousands of stock specific models.
 %===================================================================================
 %===================================================================================
-\subsection{Models for Comparison}
+\section{Models for Comparison}
 \label{ss:models}
 The experiment will use $3$ classification and $3$ regression models as well as auto-encoded variants of these models and so there are $12$ models in total.
 
-The models are: SVM (and SVR), FFN (feedforward network), RNN (which uses an LSTM layer). All 12 models have been written in Python using Spyder 3.3.3 \cite{spyder}. To implement the SVM and SVR models, scikit-learn library \cite{sklearn} is used, and Keras \cite{keras} is used to implement the FFN, RNN and auto-encoder.
+The models are: SVM (and SVR), FFN (feedforward network), RNN (which uses an LSTM layer). All 12 models have been written in Python. To implement the SVM and SVR models, scikit-learn library \cite{sklearn} is used, and Keras \cite{keras} is used to implement the FFN, RNN and auto-encoder.
 
 \paragraph{Data}
 \label{ss:data}
@@ -103,7 +103,7 @@ y_{i} =
 \]
 where $S_{t}$ is the closing price at time $t$. So the classification problem is attempting to predict the trend of the next timestep. For the regression problem, $y_{i} = S_{i+1}$ and so the regression models are attempting to predict the actual real value of the stock price at the next timestep.
 
-The data is then split into $6$ subsets and setup like K-fold validation for time series discussed in Section~\ref{s:val}, with each subset being 467 time steps.
+The data is then split into $6$ subsets and setup like K-fold validation for time series, with each subset being 467 time steps.
 
 The input data ($\mathbf{X}$) for each fold is standardised, this is so all features have a mean of $0$ and variance of $1$, this makes training perform better as the algorithms are not skewed by features which are alot larger than others, for example volume traded $\gg$ close price (the data before preprocessing can be seen in Appendix~\ref{a:data}. This is done by:
 \[
@@ -111,7 +111,7 @@ The input data ($\mathbf{X}$) for each fold is standardised, this is so all feat
 \]
 The testing data input is standardised using the same $\mu_{x}$ and $\sigma_{x}$ as the training data so that model knows how to use the data with respect to the training data.
 
-\subsection{Performance Measures}
+\section{Performance Measures}
 \label{ss:pm}
 The models will compare the models using 3 different prediction performances. The first measure is the {\em hit ratio}. This measures how many times the models predict the next trend correctly. For regression models, the output will be converted into a trend by:
 \[
@@ -148,7 +148,7 @@ both are used as it can allow for comparison with anomalies. The MSE weights ano
 
 %===================================================================================
 %===================================================================================
-\subsection{Results and Discussion}
+\section{Results and Discussion}
 \label{ss:disc}
 \begin{table}[H]
 \resizebox{\textwidth}{!}{%
@@ -222,7 +222,7 @@ A reason for the auto-encoder making the performance of regression models worse 
 Looking at specific models, the best model for the hit ratio was the classification RNN with a hit ratio of 0.555 (3 s.f.) (as mentioned at the beginning), suggesting that, for the standard investor who will simply want to predict an uptrend or downtrend to make profit, a classification algorithm will work best. This also occurred in Fold 5, suggesting that the more data there is, the better. The best MSE and MAE was achieved by the regression feedforward neural network, with 0.0289(3 s.f.) and 0.00140(3 s.f.), respectively. This is incredibly close, and a plot of this can be seen in Figure (insert figure) to show how close this was to predicting the actual price.
 %===================================================================================
 %===================================================================================
-\subsection{Conclusion}
+\section{Conclusion}
 \label{ss:cc}
 To conclude, if the user is trying to achieve the highest hit rate to profit from the model, then the best model to use would be a classification RNN. This model performed better as the training data increased so it is assumed that, if using this model, then the more training data there is, the better the outcome will be. However, if little training data is available, then the user may be more inclined to use a regression model: Fold 1, 2 and 3 all had a regression model for the top spot. It should be noted, though, that if the auto-encoded feedforward network or the auto-encoded support vector regression model is used, then the prices predicted should not be taken as an accurate prediction of the actual price. In short, the models are good at predicting the movement (hit ratio) but not the actual price (having a high MSE and MAE).
 
@@ -288,4 +288,104 @@ Wanjawa, B. and Muchemi, L. [E-print].
 Sirignano, J. and Cont, R.
 \newblock Universal Features of Price Formation in Financial Markets: Perspectives From Deep Learning.
 \newblock {\em SSRN Electronic Journal}. 2018, Available at SSRN: https://ssrn.com/abstract=3141294 or http://dx.doi.org/10.2139/ssrn.3141294.
+
+\bibitem[sklearn, 2018]{sklearn}
+Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, E.
+\newblock Scikit-learn: Machine Learning in Python.
+\newblock {\em Journal of Machine Learning Research}. 2011, \textbf{12}(1), pp. 2825-2830.
+
+\bibitem[keras, 2018]{keras}
+Chollet, F. {\em Keras} (2.2.0). [Software]. 2018. [Accessed 10th January 2019].
+
+\bibitem[kpn, 2018]{kpn}
+Yahoo! Finance.
+\newblock Koninklijke KPN N.V. (KPN.AS). 30th Jan. {\em Yahoo! Finance}. 2019. [Online]. [Accessed 5th Feb 2019]. \newblock Available from: https://finance.yahoo.com/quote/KPN.AS
+
+\bibitem[Halevy, 2009]{Halevy2009}
+Halevy, A., Norvig, P., Pereira, F.
+\newblock The Unreasonable Effectiveness of Data.
+\newblock {\em IEEE Intelligent Systems}. 2009, \textbf{24}(2), pp. 8-12.
+
+\bibitem[maas, 2009]{maas2009}
+Maas, A., Le, Q.V., O'Neil, T.M., Vinyals, O., Nguyen, P., Ng, A.Y.
+\newblock Recurrent Neural Networks for Noise Reduction in Robust ASR. In:
+\newblock {\em 13th Annual Conference of the International Speech Communication Association, 9-13 September 2012, Portland}.
+\newblock Published in INTERSPEECH 2012. Available at: https://www.isca-speech.org/.
+
+\bibitem[sakda, 2014]{sakda}
+Sak, H., Senior, A., Beaufays, F.
+\newblock Long short-term memory recurrent neural network architectures for large scale acoustic modeling.
+\newblock {\em Proceedings of the Annual Conference of the International Speech Communication Association, INTERSPEECH}. 2014, \textbf{15}(1), pp. 338-342.
+
 \end{thebibliography}
+
+\newpage
+\pagenumbering{roman}
+\appendix
+
+\section{Data}
+\label{a:data}
+%\textbf{Classification Data}
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllllllllllllllll@{}}
+\toprule
+Date       & KPN Close & AKZA Close & RAND Close & VPK Close & HEIA Close & Volume   & \%K 14day   & \%D 3       & Slow \%D 3  & RSI         & ROC         & Momentum & OSCP         & Disparity 3 & Disparity 14 & output \\ \midrule
+04/02/2008 & 7.49368   & 57.014999  & 25.959999  & 17.059999 & 37.560001  & 25915216 & 90.51742524 & 83.84348135 & 64.65266776 & 50.35984028 & 100.6514282 & 0.29708  & 0.028366613  & 100.4877992 & 103.3382978  & 0      \\
+05/02/2008 & 7.48762   & 54.360001  & 24.66      & 16.465    & 37.689999  & 61834147 & 89.65576078 & 91.95448061 & 80.63779771 & 51.28205128 & 99.03774551 & 0.13945  & 0.0343443    & 99.78455322 & 103.2115839  & 1      \\
+06/02/2008 & 7.59069   & 54.866199  & 24.370001  & 16.594999 & 36.299999  & 31237632 & 100         & 93.39106201 & 89.72967466 & 50.92267991 & 101.1308573 & 0.06063  & 0.036820586  & 100.8864083 & 104.601105   & 1      \\
+...          & ...         & ...          & ...          & ...         & ...          & ...        & ...           & ...           & ...           & ...           & ...           & ...        & ...            & ...           & ...            & ...      \\
+14/01/2019 & 2.472     & 79.110001  & 40.700001  & 43.34     & 75.080002  & 11574857 & 0           & -0.098959   & -0.098959   & 39.13043478 & 96.94117647 & -0.019   & -0.013257147 & 99.21070234 & 97.89545146  & 1      \\
+15/01/2019 & 2.473     & 79.379997  & 41.130001  & 43.639999 & 76.480003  & 14198900 & 0.900900901 & -0.098959   & -0.098959   & 38.7755102  & 98.21286736 & -0.023   & -0.014145996 & 99.55716586 & 98.14883062  & 0      \\
+16/01/2019 & 2.47      & 79.357498  & 41.509998  & 43.66     & 75.120003  & 13640391 & 0           & -0.098959   & -0.098959   & 42.3566879  & 99.51651894 & -0.037   & -0.017704223 & 99.93256912 & 98.16334062  & 1      \\ \bottomrule
+\end{tabular}%
+}
+\caption{Classification Data}
+\label{my-label}
+\end{table}
+%\noindent\textbf{Regression Data}
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllllllllllllllll@{}}
+\toprule
+Date       & KPN Close & AKZA Close & RAND Close & VPK Close & HEIA Close & Volume   & \%K 14-day  & \%D 3-day   & Slow \%D 3-day & RSI         & ROC         & Momentum & OSCP         & Disparity 3 & Disparity 14 & output  \\ \midrule
+04/02/2008 & 7.49368   & 57.014999  & 25.959999  & 17.059999 & 37.560001  & 25915216 & 90.51742524 & 83.84348135 & 64.65266776    & 50.35984028 & 100.6514282 & 0.29708  & 0.028366613  & 100.4877992 & 103.3382978  & 7.48762 \\
+05/02/2008 & 7.48762   & 54.360001  & 24.66      & 16.465    & 37.689999  & 61834147 & 89.65576078 & 91.95448061 & 80.63779771    & 51.28205128 & 99.03774551 & 0.13945  & 0.0343443    & 99.78455322 & 103.2115839  & 7.59069 \\
+06/02/2008 & 7.59069   & 54.866199  & 24.370001  & 16.594999 & 36.299999  & 31237632 & 100         & 93.39106201 & 89.72967466    & 50.92267991 & 101.1308573 & 0.06063  & 0.036820586  & 100.8864083 & 104.601105   & 7.66344 \\
+...          & ...         & ...          & ...          & ...         & ...          & ...        & ...           & ...           & ...              & ...           & ...           & ...        & ...            & ...           & ...            & ...       \\
+14/01/2019 & 2.472     & 79.110001  & 40.700001  & 43.34     & 75.080002  & 11574857 & 0           & -0.098959   & -0.098959      & 39.13043478 & 96.94117647 & -0.019   & -0.013257147 & 99.21070234 & 97.89545146  & 2.473   \\
+15/01/2019 & 2.473     & 79.379997  & 41.130001  & 43.639999 & 76.480003  & 14198900 & 0.900900901 & -0.098959   & -0.098959      & 38.7755102  & 98.21286736 & -0.023   & -0.014145996 & 99.55716586 & 98.14883062  & 2.47    \\
+16/01/2019 & 2.47      & 79.357498  & 41.509998  & 43.66     & 75.120003  & 13640391 & 0           & -0.098959   & -0.098959      & 42.3566879  & 99.51651894 & -0.037   & -0.017704223 & 99.93256912 & 98.16334062  & 2.498   \\ \bottomrule
+\end{tabular}%
+}
+\caption{Regression Data}
+\label{my-label}
+\end{table}
+%\noindent\textbf{Formula}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+% \usepackage{graphicx}
+\begin{table}[H]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+Feature          & Description                                                                                                                                                                                              & Formula                                                                                                                                                                                                            & Reference \\ \midrule
+\%K 14-day       & \begin{tabular}[c]{@{}l@{}}Stochastic Oscillator. Compares \\ the current closing price relative \\ to its price range over a given \\ time period.\end{tabular}                                         & \begin{tabular}[c]{@{}l@{}}$\frac{S_{t}-L_{14}}{H_{14}-L_{14}}\times100$\\ where $L_{14}$ means lowest price in last 14 days\\ and $H_{14}$ means highest price in last 14 days.\end{tabular}                      &    \cite{kim2003}       \\
+\%D 3-day        & Moving average of \%K.                                                                                                                                                                                   & $\frac{1}{n}\sum_{i=0}^{2} \%K_{t-i}$                                                                                                                                                                              &     \cite{kim2003}      \\
+slow \%D 3-day   & Moving average of \%D.                                                                                                                                                                                   & $\frac{1}{n}\sum_{i=0}^{2} \%D_{t-i}$                                                                                                                                                                              &       \cite{kim2003}    \\
+RSI              & \begin{tabular}[c]{@{}l@{}}Relative strength index. It \\ measures the magnitude of \\ recent price changes to evaluate \\ overbought or oversold \\ conditions in the price of a \\ stock.\end{tabular} & \begin{tabular}[c]{@{}l@{}}$100 - \frac{100}{1+(\sum_{i=0}^{13}Up_{t-i}/n)/(\sum_{i=0}^{13}Dw_{t-i}/n)}$\\ where $Up_{t}$ means upward-price change and $Dw_{t}$ \\ means downward price at time $t$.\end{tabular} &    \cite{kim2003}       \\
+ROC              & \begin{tabular}[c]{@{}l@{}}Price rate of change. It is a \\ ratio of the current price and \\ the price n-days ago.\end{tabular}                                                                         & $\frac{S_{t}}{S_{t-n}}\times 100$                                                                                                                                                                                  &      \cite{kim2003}     \\
+Momentum         & \begin{tabular}[c]{@{}l@{}}It measures the difference \\ between todays price and the \\ price n-days ago, used to spot \\ positive or negative trends.\end{tabular}                                     & $S_{t}-S_{t-n}$                                                                                                                                                                                                    &       \cite{kim2003}     \\
+OSCP             & \begin{tabular}[c]{@{}l@{}}It displays the difference \\ between two moving averages \\ of a security.\end{tabular}                                                                                      & $\frac{\text{MA}_{5} - \text{MA}_{10}}{\text{MA}_{10}}$                                                                                                                                                            &      \cite{kim2003}     \\
+Disparity 3-day  & \begin{tabular}[c]{@{}l@{}}A ratio between the current \\ price and the 3-day MA.\end{tabular}                                                                                                           & $\frac{S_{t}}{\text{MA}_{3}}$                                                                                                                                                                                      &      \cite{kim2003}     \\
+Disparity 14-day & \begin{tabular}[c]{@{}l@{}}A ratio between the current \\ price and the 14-day MA.\end{tabular}                                                                                                          & $\frac{S_{t}}{\text{MA}_{14}}$                                                                                                                                                                                     &      \cite{kim2003}     \\ \bottomrule
+\end{tabular}%
+}
+\caption{Features and their respective formula.}
+\label{my-label}
+\end{table}
+
+\end{document}
