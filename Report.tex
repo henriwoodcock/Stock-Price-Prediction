@@ -47,3 +47,245 @@
 
 % this can be commented out if desired:
 \numberwithin{equation}{section}
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+{\bf \huge Machine and Deep Learning for Stock Price Prediction: Comparison of Classification and Regression Techniques}
+\vspace{4mm} \\
+\today
+\end{center}
+
+\tableofcontents
+
+\noindent \hrulefill
+
+\section{Experiment}
+\label{s:exp}
+This experiment compares different algorithms for predicting a stocks price and its trend, it also compares the use of classification and regression algorithms for predicting the trend while also analysing other problems like the importance of the amount data and the use of auto-encoders.
+
+This section will start with a literature review to discuss developments in financial time series prediction, then discuss the models to be compared and the tools used to create them, followed by an explanation of the conducted experiment and finally a dicussion on the results.
+%===================================================================================
+%===================================================================================
+\subsection{Literature Review}
+\label{lit:rev}
+The 21st century has stimulated a huge growth in the accessibility of data and the amount of data collected. This has brought around a rise in Machine and Deep Learning; as defined in Section 2.1, Machine Learning algorithms can automatically detect patterns in data and in this era, with vast amounts of data, algorithms that can automatically analyse data are needed.
+
+In finance, investors can now download years of data for hundreds of securities, from stock prices to accounting ratios, leading to the use of Machine and Deep Learning techniques in finance. Stock price prediction was (and still is to an extent) dominated by the use of statistical time series models like ARIMA, both \cite{devi2013},\cite{ade2014} both found that the ARIMA method is still effective, with \cite{devi2013} getting a mean absolute percentage error as low as 21\% for the Nifty 50 index. However, \cite{ade2014} showed that ARIMA models can only produce satisfactory results with short-term predictions – this is also supported by the results in \cite{ho2002}.
+
+The use of Machine and Deep Learning algorithms to predict financial time series is growing. \cite{kim2003} used SVMs to predict trend movements and was able to achieve a hit ratio of 54\% on the Korean stock index over a far greater time frame of 581 steps (20\% of the data) instead of a standard 10-20 steps used in ARIMA research. \cite{kim2003} also showed the sensitivity of the SVM parameters in this context. This was then extended by \cite{qian2017} where a denoising auto-encoder was used prior to SVM algorithm and managed to achieve a hit ratio of 67.2\%. However, this was tested on far fewer time steps: \cite{pai2005} used a hybrid ARIMA and SVM algorithm which achieved better results than ARIMA, but still was only performed on so few time steps that long-term accuracies could not be seen.
+
+A slightly different approach was performed by \cite{chen2016}, which – inspired by recent development in Convolution Neural Networks (CNNs) (and the AlphaGo project) for image recognition – converted financial time series data into 2D images for a CNN to classify the trend of the Taiwan stock exchange. A hit rate of 57.88\% on one of their examples was achieved, but concluded that more data could reduce the difficulty of classification. \cite{edet} compared the use of a simple RNN to a LSTM model and found that a simple RNN had a trend classification accuracy of 75\%, 1\% higher than an LSTM. He also found that implementing strategy used by following trend prediction can lead to profits exceeding buy and hold strategy on the S\&P500 index with a prediction on 480 steps (20\% of the data).
+
+On the regression side, \cite{iqbal2013} found that RNNs outperform in prediction compared to feed-forward neural networks. However, RNNs have a far greater training time, which could be a factor in model selection. \cite{wan2014} managed to achieve a mean absolute percentage error as low as 0.71\% when predicting 60 future values after training on 1000 examples.
+
+One final important paper is \cite{siri2018} which creates a huge deep learning model trained on a large dataset of “billions of orders and transactions” \cite{siri2018} for 1000 US stocks. This gives remarkable results in which the authors believe they have uncovered evidence “universal price formation mechanism”\cite{siri2018} by showing their model can accurately predict prices of unseen stocks after being trained on multiple stocks, outperforming models trained on the singular stock. \cite{siri2018} concludes that creating one universal model is less costly than training thousands of stock specific models.
+%===================================================================================
+%===================================================================================
+\subsection{Models for Comparison}
+\label{ss:models}
+The experiment will use $3$ classification and $3$ regression models as well as auto-encoded variants of these models and so there are $12$ models in total.
+
+The models are: SVM (and SVR), FFN (feedforward network), RNN (which uses an LSTM layer). All 12 models have been written in Python using Spyder 3.3.3 \cite{spyder}. To implement the SVM and SVR models, scikit-learn library \cite{sklearn} is used, and Keras \cite{keras} is used to implement the FFN, RNN and auto-encoder.
+
+\paragraph{Data}
+\label{ss:data}
+Data used is daily closing price of KPN, AKZA, RAND, VPK, HEIA and the KPN trading volume from the $4$th Febuary $2008$ to $16$th January $2019$ in the Amsterdam stock exchange, taken from Yahoo Finance \cite{kpn}, as well as technical indicators applied to the KPN price and trading volume which can be found in Appendix~\ref{a:data}. The use of multiple stock prices to predict one is inspired by \cite{siri2018}. The use of techincal indicators was inspired by \cite{kim2003, qian2017} who were able to achieve high results with just the use of techincal indicators.
+
+For the classification data set, the output, $y_{i}$ at each time step was created as follows ($S_{t}$ = closing price at time $t$):
+\[
+y_{i} =
+    \begin{cases}
+      1, & \text{if}\ S_{i+1} > S_{i} \\
+      0, & \text{otherwise}
+    \end{cases}
+\]
+where $S_{t}$ is the closing price at time $t$. So the classification problem is attempting to predict the trend of the next timestep. For the regression problem, $y_{i} = S_{i+1}$ and so the regression models are attempting to predict the actual real value of the stock price at the next timestep.
+
+The data is then split into $6$ subsets and setup like K-fold validation for time series discussed in Section~\ref{s:val}, with each subset being 467 time steps.
+
+The input data ($\mathbf{X}$) for each fold is standardised, this is so all features have a mean of $0$ and variance of $1$, this makes training perform better as the algorithms are not skewed by features which are alot larger than others, for example volume traded $\gg$ close price (the data before preprocessing can be seen in Appendix~\ref{a:data}. This is done by:
+\[
+\tilde{\mathbf{x}} = \frac{\mathbf{x} - \mu_{x}}{\sigma_{x}}
+\]
+The testing data input is standardised using the same $\mu_{x}$ and $\sigma_{x}$ as the training data so that model knows how to use the data with respect to the training data.
+
+\subsection{Performance Measures}
+\label{ss:pm}
+The models will compare the models using 3 different prediction performances. The first measure is the {\em hit ratio}. This measures how many times the models predict the next trend correctly. For regression models, the output will be converted into a trend by:
+\[
+\text{trend}_{i} =
+    \begin{cases}
+      1, & \text{if}\ \hat{y}_{i} > S_{i} \\
+      0, & \text{otherwise}
+    \end{cases}
+\]
+i.e. a $1$ is the model predicts that the next days closing price is higher than todays closing price. The hit ratio is calculated as follows:
+\[
+\text{hit}_{i} =
+    \begin{cases}
+      1, & \text{if}\ \text{trend}_{i} = \text{actual trend}_{i} \\
+      0, & \text{otherwise}
+    \end{cases}
+\]
+\[
+\text{hit ratio} = \frac{1}{m}\sum_{i=1}^{m} \text{hit}_{i}
+\]
+where $m$ is the number of testing samples.
+
+The other two measures are the mean squared error (MSE) and the mean absolute error (MAE):
+\[
+\text{MSE} = \sum_{i=1}^{m}(y_{i} - \hat{y}_{i})^2
+\]
+\[
+\text{MAE} = \sum_{i=1}^{m} |y_{i}-\hat{y}_{i}|
+\]
+both are used as it can allow for comparison with anomalies. The MSE weights anomalies high and so if a model has a high MSE it can be seen it had a few anomaly results in which the distance from the actual value was high. This is important in stock price prediction because if there is a lot of anomalies the model is risky and should not be used as it could risk investments.
+
+
+
+
+%===================================================================================
+%===================================================================================
+\subsection{Results and Discussion}
+\label{ss:disc}
+\begin{table}[H]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Hit Rates}           & Fold 1                                   & Fold 2                                   & Fold 3                                   & Fold 4                                   & Fold 5                                                          \\ \midrule
+Models                       & \multicolumn{5}{c}{Classification}                                                                                                                                                                                                          \\ \midrule
+\multicolumn{1}{|l|}{SVM}    & \multicolumn{1}{l|}{0.49464668094218417} & \multicolumn{1}{l|}{0.5224839400428265}  & \multicolumn{1}{l|}{0.5053533190578159}  & \multicolumn{1}{l|}{0.5139186295503212}  & \multicolumn{1}{l|}{0.5074946466809421}                         \\ \midrule
+\multicolumn{1}{|l|}{FFN}    & \multicolumn{1}{l|}{0.47109207708779444} & \multicolumn{1}{l|}{0.47109207708779444} & \multicolumn{1}{l|}{0.4989293361884368}  & \multicolumn{1}{l|}{0.5032119914346895}  & \multicolumn{1}{l|}{0.5331905781584583}                         \\ \midrule
+\multicolumn{1}{|l|}{RNN}    & \multicolumn{1}{l|}{0.5010706638115632}  & \multicolumn{1}{l|}{0.5053533190578159}  & \multicolumn{1}{l|}{0.48822269807280516} & \multicolumn{1}{l|}{0.5010706638115632}  & \multicolumn{1}{l|}{\cellcolor[HTML]{F8FF00}0.5546038543897216} \\ \midrule
+\multicolumn{1}{|l|}{AE-SVM} & \multicolumn{1}{l|}{0.5267665952890792}  & \multicolumn{1}{l|}{0.5032119914346895}  & \multicolumn{1}{l|}{0.5331905781584583}  & \multicolumn{1}{l|}{0.5353319057815846}  & \multicolumn{1}{l|}{0.5117773019271948}                         \\ \midrule
+\multicolumn{1}{|l|}{AE-FFN} & \multicolumn{1}{l|}{0.5353319057815846}  & \multicolumn{1}{l|}{0.5053533190578159}  & \multicolumn{1}{l|}{0.5246252676659529}  & \multicolumn{1}{l|}{0.5396145610278372}  & \multicolumn{1}{l|}{0.5353319057815846}                         \\ \midrule
+\multicolumn{1}{|l|}{AE-RNN} & \multicolumn{1}{l|}{0.5203426124197003}  & \multicolumn{1}{l|}{0.5460385438972163}  & \multicolumn{1}{l|}{0.48822269807280516} & \multicolumn{1}{l|}{0.5267665952890792}  & \multicolumn{1}{l|}{0.5139186295503212}                         \\ \midrule
+                             & \multicolumn{5}{c}{Regression}                                                                                                                                                                                                              \\ \midrule
+\multicolumn{1}{|l|}{SVR}    & \multicolumn{1}{l|}{0.5257510729613734}  & \multicolumn{1}{l|}{0.5493562231759657}  & \multicolumn{1}{l|}{0.4871244635193133}  & \multicolumn{1}{l|}{0.4978540772532189}  & \multicolumn{1}{l|}{0.5515021459227468}                         \\ \midrule
+\multicolumn{1}{|l|}{FFN}    & \multicolumn{1}{l|}{0.5236051502145923}  & \multicolumn{1}{l|}{0.5236051502145923}  & \multicolumn{1}{l|}{0.51931330472103}    & \multicolumn{1}{l|}{0.4957081545064378}  & \multicolumn{1}{l|}{0.4871244635193133}                         \\ \midrule
+\multicolumn{1}{|l|}{RNN}    & \multicolumn{1}{l|}{0.5364806866952789}  & \multicolumn{1}{l|}{0.5021459227467812}  & \multicolumn{1}{l|}{0.4699570815450644}  & \multicolumn{1}{l|}{0.49356223175965663} & \multicolumn{1}{l|}{0.5064377682403434}                         \\ \midrule
+\multicolumn{1}{|l|}{AE-SVR} & \multicolumn{1}{l|}{0.5021459227467812}  & \multicolumn{1}{l|}{0.5085836909871244}  & \multicolumn{1}{l|}{0.5364806866952789}  & \multicolumn{1}{l|}{0.5236051502145923}  & \multicolumn{1}{l|}{0.5150214592274678}                         \\ \midrule
+\multicolumn{1}{|l|}{AE-FFN} & \multicolumn{1}{l|}{0.5515021459227468}  & \multicolumn{1}{l|}{0.5515021459227468}  & \multicolumn{1}{l|}{0.4957081545064378}  & \multicolumn{1}{l|}{0.5128755364806867}  & \multicolumn{1}{l|}{0.48068669527896996}                        \\ \midrule
+\multicolumn{1}{|l|}{AE-RNN} & \multicolumn{1}{l|}{0.5343347639484979}  & \multicolumn{1}{l|}{0.51931330472103}    & \multicolumn{1}{l|}{0.44849785407725323} & \multicolumn{1}{l|}{0.5321888412017167}  & \multicolumn{1}{l|}{0.48497854077253216}                        \\ \bottomrule
+\end{tabular}%
+}
+\caption{The hit ratio results from the experiment, (AE stands for Auto-Encoded so AE-FFN is an Auto-Encoded Feed-Forward Network).}
+\label{hitratioresults}
+\end{table}
+
+\begin{table}[]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllllllllllll@{}}
+\cmidrule(r){1-6} \cmidrule(l){8-13}
+\textbf{MAE}                 & Fold 1                        & Fold 2                        & Fold 3                        & Fold 4                        & Fold 5                        &                       & \textbf{MSE}                & Fold 1                        & Fold 2                         & Fold 3                        & Fold 4                        & Fold 5                        \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+Models                       & \multicolumn{5}{c}{Classification}                                                                                                                            &                       & Models                      & \multicolumn{5}{c}{Classification}                                                                                                                             \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{SVM}    & \multicolumn{1}{l|}{0.505353} & \multicolumn{1}{l|}{0.477516} & \multicolumn{1}{l|}{0.494647} & \multicolumn{1}{l|}{0.486081} & \multicolumn{1}{l|}{0.492505} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{SVM}    & \multicolumn{1}{l|}{0.505353} & \multicolumn{1}{l|}{0.477516}  & \multicolumn{1}{l|}{0.494647} & \multicolumn{1}{l|}{0.486081} & \multicolumn{1}{l|}{0.492505} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{FFN}    & \multicolumn{1}{l|}{0.499883} & \multicolumn{1}{l|}{0.512223} & \multicolumn{1}{l|}{0.499994} & \multicolumn{1}{l|}{0.496335} & \multicolumn{1}{l|}{0.492974} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{FFN}    & \multicolumn{1}{l|}{0.267794} & \multicolumn{1}{l|}{0.335361}  & \multicolumn{1}{l|}{0.28168}  & \multicolumn{1}{l|}{0.257908} & \multicolumn{1}{l|}{0.273414} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{RNN}    & \multicolumn{1}{l|}{0.496748} & \multicolumn{1}{l|}{0.498501} & \multicolumn{1}{l|}{0.503213} & \multicolumn{1}{l|}{0.507818} & \multicolumn{1}{l|}{0.486838} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{RNN}    & \multicolumn{1}{l|}{0.251286} & \multicolumn{1}{l|}{0.346753}  & \multicolumn{1}{l|}{0.323996} & \multicolumn{1}{l|}{0.301227} & \multicolumn{1}{l|}{0.253361} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{AE-SVM} & \multicolumn{1}{l|}{0.473233} & \multicolumn{1}{l|}{0.496788} & \multicolumn{1}{l|}{0.466881} & \multicolumn{1}{l|}{0.464668} & \multicolumn{1}{l|}{0.488223} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{AE-SVM} & \multicolumn{1}{l|}{0.473233} & \multicolumn{1}{l|}{0.496788}  & \multicolumn{1}{l|}{0.466809} & \multicolumn{1}{l|}{0.464668} & \multicolumn{1}{l|}{0.488223} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{AE-MLP} & \multicolumn{1}{l|}{0.495340} & \multicolumn{1}{l|}{0.495697} & \multicolumn{1}{l|}{0.490096} & \multicolumn{1}{l|}{0.490472} & \multicolumn{1}{l|}{0.495237} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{AE-MLP} & \multicolumn{1}{l|}{0.262679} & \multicolumn{1}{l|}{0.263104}  & \multicolumn{1}{l|}{0.262437} & \multicolumn{1}{l|}{0.269021} & \multicolumn{1}{l|}{0.279262} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{AE-RNN} & \multicolumn{1}{l|}{0.497863} & \multicolumn{1}{l|}{0.496855} & \multicolumn{1}{l|}{0.500870} & \multicolumn{1}{l|}{0.498710} & \multicolumn{1}{l|}{0.499280} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{AE-RNN} & \multicolumn{1}{l|}{0.250470} & \multicolumn{1}{l|}{0.248034}  & \multicolumn{1}{l|}{0.252261} & \multicolumn{1}{l|}{0.249302} & \multicolumn{1}{l|}{0.249948} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+                             & \multicolumn{5}{c}{Regression}                                                                                                                                &                       &                             & \multicolumn{5}{c}{Regression}                                                                                                                                 \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{SVR}    & \multicolumn{1}{l|}{0.397346} & \multicolumn{1}{l|}{2.380246} & \multicolumn{1}{l|}{0.400028} & \multicolumn{1}{l|}{0.133774} & \multicolumn{1}{l|}{0.132990} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{SVR}    & \multicolumn{1}{l|}{0.218233} & \multicolumn{1}{l|}{9.223313}  & \multicolumn{1}{l|}{0.243253} & \multicolumn{1}{l|}{0.027218} & \multicolumn{1}{l|}{0.024404} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{FFN}    & \multicolumn{1}{l|}{0.583937} & \multicolumn{1}{l|}{1.231039} & \multicolumn{1}{l|}{0.085746} & \multicolumn{1}{l|}{0.056172} & \multicolumn{1}{l|}{0.028865} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{FFN}    & \multicolumn{1}{l|}{0.398000} & \multicolumn{1}{l|}{2.670620}  & \multicolumn{1}{l|}{0.010610} & \multicolumn{1}{l|}{0.005356} & \multicolumn{1}{l|}{0.001403} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{RNN}    & \multicolumn{1}{l|}{0.388919} & \multicolumn{1}{l|}{1.598820} & \multicolumn{1}{l|}{0.534221} & \multicolumn{1}{l|}{0.070322} & \multicolumn{1}{l|}{0.091938} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{RNN}    & \multicolumn{1}{l|}{0.171895} & \multicolumn{1}{l|}{4.643264}  & \multicolumn{1}{l|}{0.322304} & \multicolumn{1}{l|}{0.008180} & \multicolumn{1}{l|}{0.014587} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{AE-SVR} & \multicolumn{1}{l|}{0.415982} & \multicolumn{1}{l|}{3.041816} & \multicolumn{1}{l|}{1.106633} & \multicolumn{1}{l|}{0.552469} & \multicolumn{1}{l|}{1.192021} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{AE-SVR} & \multicolumn{1}{l|}{0.267384} & \multicolumn{1}{l|}{11.530005} & \multicolumn{1}{l|}{2.463743} & \multicolumn{1}{l|}{0.454033} & \multicolumn{1}{l|}{1.995171} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{AE-MLP} & \multicolumn{1}{l|}{0.325144} & \multicolumn{1}{l|}{2.939524} & \multicolumn{1}{l|}{0.700055} & \multicolumn{1}{l|}{0.462934} & \multicolumn{1}{l|}{0.665415} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{AE-MLP} & \multicolumn{1}{l|}{0.163384} & \multicolumn{1}{l|}{10.861558} & \multicolumn{1}{l|}{0.676369} & \multicolumn{1}{l|}{0.281788} & \multicolumn{1}{l|}{0.523037} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\multicolumn{1}{|l|}{AE-RNN} & \multicolumn{1}{l|}{0.542022} & \multicolumn{1}{l|}{2.877192} & \multicolumn{1}{l|}{0.799074} & \multicolumn{1}{l|}{0.351736} & \multicolumn{1}{l|}{0.583431} & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{AE-RNN} & \multicolumn{1}{l|}{0.479668} & \multicolumn{1}{l|}{10.426144} & \multicolumn{1}{l|}{0.827516} & \multicolumn{1}{l|}{0.166185} & \multicolumn{1}{l|}{0.410738} \\ \cmidrule(r){1-6} \cmidrule(l){8-13}
+\end{tabular}%
+}
+\caption{The Mean Absolute Error (MAE) and Mean Squared Error (MSE) results from the experiment.}
+\label{maemse}
+\end{table}
+The hit ratio, MAE and MSE results can be seen in Table~\ref{hitratioresults} and Table~\ref{maemse}. The highest hit ratio was a classification RNN model at 0.555 in fold5 with a close second of a 0.552\% for the Auto-Encoded feedforward network in fold2 and the Support Vector Regression in fold5. The models with the lowest MAE and MSE were all regression models, with the lowest being the feedforward regression network with a MAE of 0.02886502 and an MSE of 0.00140317.
+
+On average, classification models had a higher hit rate, as more training data was used – going from an average 0.508 in Fold 1 to 0.526 in Fold 5. This was expected, as can be seen in \cite{Halevy2009}, and relationships begin to be found with increased data. This was mentioned in Section~\ref{ss:mvto}: as data is increased, it becomes easier to generalise, because you learn relationships in more situations. However, in the regression algorithms, the average hit rate actually decreased as the folds increased, suggesting that more data was, in fact, problematic for predicting the trend. However, when looking at the other measurements (mean squared error and mean absolute error), the lowest error was actually in Fold 4. This means that the models were, in reality, incredibly close to predicting the actual price (an MSE of 0.157 and a MAE 0.271) of the stock but not the trend.  One surprising result is that in Fold 1 and Fold 2 regression models on average achieved a higher hit rate than the classification models suggesting that if little data obtainable then regression models will perform better. In Fold 1 and 2 regression models achieved an average hit rate of 0.529 and 0.526 respectively compared to the average classifcation hit rates in Fold 1 and 2 which was 0.508 and 0.509 respectively.
+
+The hit rate is a good measurement as it demonstrates how an investor could use these models. If an uptrend is predicted, then the investor will know to buy the stock and can sell it at the next time step for a profit (if the prediction is correct). However, the hit rate makes it difficult to compare models in any other way, as mentioned before. Regression models had a decreasing hit rate over increasing the training size, but the MSE and MAE reached a low in Fold 4, suggesting that more training data was helping prediction. MSE and MAE can be used to assess the model’s accuracy in predicting its intended output.
+
+It became clear that, as the training data increased, classification models had a decreasing MAE until Fold 4 (similar to regression). That being said, the MSE actually increased with more training data, suggesting that the model was more affected by outliers, which could mean that the models began to overfit with more data. Regression and Classification models achieved similar MAE and MSE on average, yet regression was the most accurate in both of these measurements, suggesting that it is more accurate to predict actual price than price trend.
+
+Another important factor to note is the effect of auto-encoding. To do this, an average is taken for each of the performance measures when auto-encoded and when not auto-encoded for both classification and regression. Doing this showed that, on average, the auto-encoded classification models outperformed the standard models in all three performance measures. Also, it showed that, when the training data increased, the performance increased in both standard and auto-encoded models. However, for regression, the results were slightly different: On average, the auto-encoded models outperformed the standard models in the hit ratio in all but Fold 5, suggesting that auto-encoding helps to improve the models’ accuracy in predicting movements in the price and its ability to predict the trend. On the other hand, the standard models outperformed the auto-encoded models in both MSE and MAE in all five folds. In fact, on average, the standard models were able to achieve a MAE of 0.0867 suggesting that the models were, on average, 0.0867 away from the actual price. Figure~\ref{f:ffnfold5} of the Feed-Forward Network in Fold 5 shows how close the regression models were to actually predicting the true price.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=80mm]{ffn_fold5.png}
+\end{center}
+\caption{The Price Prediction of The Feed-Forward Network vs The Actual Price in Fold 5.}
+\label{f:ffnfold5}
+\end{figure}
+
+A reason for the auto-encoder making the performance of regression models worse for the MAE and MSE can be explained by \cite{maas2009}. Regression in time series requires long term dependencies which is not represented through standard auto-encoders. \cite{maas2009} presents a recurrent auto-encoder which can allow for these long-term dependencies, and thus represent relationships over time in the compressed (encoded) data.
+
+Looking at specific models, the best model for the hit ratio was the classification RNN with a hit ratio of 0.555 (3 s.f.) (as mentioned at the beginning), suggesting that, for the standard investor who will simply want to predict an uptrend or downtrend to make profit, a classification algorithm will work best. This also occurred in Fold 5, suggesting that the more data there is, the better. The best MSE and MAE was achieved by the regression feedforward neural network, with 0.0289(3 s.f.) and 0.00140(3 s.f.), respectively. This is incredibly close, and a plot of this can be seen in Figure (insert figure) to show how close this was to predicting the actual price.
+%===================================================================================
+%===================================================================================
+\subsection{Conclusion}
+\label{ss:cc}
+To conclude, if the user is trying to achieve the highest hit rate to profit from the model, then the best model to use would be a classification RNN. This model performed better as the training data increased so it is assumed that, if using this model, then the more training data there is, the better the outcome will be. However, if little training data is available, then the user may be more inclined to use a regression model: Fold 1, 2 and 3 all had a regression model for the top spot. It should be noted, though, that if the auto-encoded feedforward network or the auto-encoded support vector regression model is used, then the prices predicted should not be taken as an accurate prediction of the actual price. In short, the models are good at predicting the movement (hit ratio) but not the actual price (having a high MSE and MAE).
+
+However, if wanting to predict the actual price, then a classification model cannot be used. This experiment has shown that regression models are able to do this with a high accuracy, and that results improve with more training data. In this experiment, a regression feedforward network achieved the best results and are far quicker to train than the LSTM due to there being fewer components to learn. However, LSTMs have proved to be more successful in other areas such as in \cite{sakda} where "state-of-the-art"\cite{sakda} performance is achieved in acoustic modelling, and so more research needs to be done here to see if their performance can be enhanced by other features or a different architecture to the LSTM used.
+
+Auto-encoding proved to be successful for classification algorithms but not regression algorithms, suggesting more research could be done to find different types of auto-encoders. This could then enhance the performance of regression models in the scenario, like the recurrent auto-encoder mentioned in Section~\ref{ss:disc}.
+
+Finally, this experiment could have been extended to try different stocks, so as to see if these results generalise to many different stocks or whether the results achieved only happen on this specific stock. To see how these results can be useful for investors see Appendix~ which discusses trading strategies that could be implemented with these results.
+%===================================================================================
+%===================================================================================
+\begin{thebibliography}{}
+\bibitem[devi, 2013]{devi2013}
+Uma, D.B., Sundar, D., Alli, P.
+\newblock An Effective Time Series Analysis for Stock Trend Prediction Using ARIMA Model for Nifty Midcap-50.
+\newblock {\em International Journal of Data Mining \& Knowledge Management Process}. 2013, \textbf{3}(1), pp. 65-78.
+
+\bibitem[ade, 2014]{ade2014}
+Adebiyi, A., Adewumi, A., Ayo, C.
+\newblock Stock price prediction using the ARIMA model. In: {\em UKSim-AMSS 16th International Conference on Computer Modelling and Simulation, 26 - 28 March 2014, Cambridge}.
+\newblock Washington: IEEE Computer Society, 2014, pp. 106-112.
+
+\bibitem[ho, 2002]{ho2002}
+Ho, S.L., Xie, M., Goh, T.N.
+\newblock A Comparative Study of Neural Network and Box-Jenkins ARIMA Modeling in Time Series Prediction.
+\newblock {\em Computers \& Industrial Engineering}. 2002, \textbf{42}(2), pp. 371 - 375.
+
+\bibitem[kim, 2003]{kim2003}
+Kim, K. J.
+Financial Time Series Forecasting Using Support Vector Machines.
+\newblock{\em Neurocomputing}. 2003, \textbf{55}(1), pp. 307-319.
+
+\bibitem[qian, 2017]{qian2017}
+Qian, X.Y. and Gao, S. [E-print].
+\newblock Financial Series Prediction: Comparison Between Precision of Time Series Models and Machine Learning Methods.
+\newblock {\em arXiv}. arXiv:1706.00948. 2017.
+
+\bibitem[pai, 2005]{pai2005}
+Pai, P.F. and Lin, C.S.
+\newblock A hybrid ARIMA and support vector machines model in stock price forecasting.
+\newblock {\em Omega}. 2005, \textbf{33}(6), pp. 497-505.
+
+\bibitem[chen, 2016]{chen2016}
+Chen, J., Chen, W., Huang, C., Huang, S., Chen, A.
+\newblock Financial Time-Series Data Analysis Using Deep Convolutional Neural Networks. In: {\em 2016 7th International Conference on Cloud Computing and Big Data (CCBD), 16 - 18 November 2016, Macau}.
+\newblock Washington: IEEE Computer Society, 2016, pp. 87-92.
+
+\bibitem[edet, 2017]{edet}
+Edet, S.
+\newblock Recurrent Neural Networks in Forecasting S\&P 500 Index.
+\newblock {\em SSRN Electronic Journal}. 2017, Available at SSRN: https://ssrn.com/abstract=3001046 or http://dx.doi.org/10.2139/ssrn.3001046.
+
+\bibitem[iqbal, 2013]{iqbal2013}
+Iqbal, Z, Ilyas, R., Shahzad, W., Mahmood, Z., Anjum, J.
+\newblock Efficient Machine Learning Techniques for Stock Market Prediction.
+\newblock{\em International Journal of Engineering Research and Applications}. 2019, \textbf{3}(1), pp. 855-867.
+
+\bibitem[wan, 2014]{wan2014}
+Wanjawa, B. and Muchemi, L. [E-print].
+\newblock ANN Model to Predict Stock Prices at Stock Exchange Markets.
+\newblock{\em arXiv}. arXiv:1602.06561. 2014.
+
+\bibitem[siri, 2018]{siri2018}
+Sirignano, J. and Cont, R.
+\newblock Universal Features of Price Formation in Financial Markets: Perspectives From Deep Learning.
+\newblock {\em SSRN Electronic Journal}. 2018, Available at SSRN: https://ssrn.com/abstract=3141294 or http://dx.doi.org/10.2139/ssrn.3141294.
+\end{thebibliography}
