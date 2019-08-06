@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath}    % for extra maths commands
+\usepackage{amsfonts}
+\usepackage{color}      % allows for colour
+\usepackage{graphicx}   % for importing graphics files
+\usepackage{natbib}     % for some extra citation commands
+  \bibliographystyle{abbrv}
+
+\usepackage{subcaption}
+
+\allowdisplaybreaks
+
+\usepackage{float}
+
+\usepackage[official]{eurosym}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{lscape}
+\usepackage[table,xcdraw]{xcolor}
+
+%\usepackage{showlabels} % shows labels in margins; comment out (eventually)
+\usepackage{palatino}   % determines the font (palatino chosen here)
+
+% change from the very wide default margins:
+\usepackage[left=1.5cm,right=1.5cm,top=2cm,bottom=2cm]{geometry}
+%3, %2.5
+% add some nice page headings:  IF you want to use them.
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}                  % clear the default layout
+\fancyhead[C]{Machine and Deep Learning for Stock Price Prediction} % can be personalised
+\fancyhead[L]{Henri Woodcock}      % can be personalised
+\fancyhead[R]{}        % can be personalised
+
+% some commands for including computer code:
+\usepackage{listings}
+\definecolor{lightgray}{rgb}{0.9,0.9,0.9}
+\lstset{backgroundcolor=\color{lightgray}, language=python}
+
+% you can define your own commands (or shortcuts) here:
+\newcommand{\infint}{\int_{-\infty}^{\infty}}
+\newcommand{\pdev}[2]{ \frac{\partial {#1}}{\partial {#2}} }
+
+\DeclareMathOperator*{\argmaxA}{arg\,max}
+\DeclareMathOperator*{\argminA}{arg\,min}
+
+% this can be commented out if desired:
+\numberwithin{equation}{section}
