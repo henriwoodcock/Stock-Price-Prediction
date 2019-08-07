@@ -5,7 +5,7 @@ The objective of this report is to compare the use of classification models and 
 ---
 
 ## Table of Contents:
-* [Literature Review, Experiment and Results Report](addlink)
+* [Literature Review, Experiment and Results Report](report.pdf)
 * Code
     * Classification Models:
         - [SVM](SVM.py)
